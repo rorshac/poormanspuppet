@@ -22,7 +22,7 @@
 
 #  - name: Verify md5 sum of file before to determine if change is required.
 #    fail:
-#      msg: "Failure, file is not correct."
+#      msg: "Failure, file does not match."
 #    when: shell_stat.stat.checksum != local_stat.stat.checksum
 #    register: needs_ldaps
 
