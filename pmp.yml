@@ -1,0 +1,37 @@
+---
+-
+  become: true
+  become_method: sudo
+  become_user: root
+  hosts: all
+  tasks:
+  - name: Get md5sum of target nslcd.conf
+    stat:
+      path: /etc/nslcd.conf
+      checksum_algorithm: md5
+      get_checksum: yes
+    register: shell_stat
+
+  - name: Get md5sum of local nslcd.conf
+    stat:
+      path: /home/deploy/files/nslcd_ldaps.conf
+      checksum_algorithm: md5
+      get_checksum: yes
+    delegate_to: localhost
+    register: local_stat
+
+#  - name: Verify md5 sum of file before to determine if change is required.
+#    fail:
+#      msg: "Failure, file is not correct."
+#    when: shell_stat.stat.checksum != local_stat.stat.checksum
+#    register: needs_ldaps
+
+  - name: Push new nslcd.conf when checksum does not match
+    copy:
+      src: /home/deploy/files/nslcd_ldaps.conf
+      dest: /etc/nslcd.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: o=rw
+    when: shell_stat.stat.checksum != local_stat.stat.checksum
